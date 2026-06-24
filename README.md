@@ -10,19 +10,15 @@ Interactive Bash/PowerShell installer for terminal-based AI coding agents. Autom
 
 bash
 
-    git clone https://github.com && cd ai-cli-agents-installer && chmod +x install-ai-agents.sh && ./install-ai-agents.sh
+    git clone https://github.com/Lord93jdiso/ai-cli-agents-installer && cd ai-cli-agents-installer && chmod +x install-ai-agents.sh && ./install-ai-agents.sh
     
-
-Use code with caution.
 
 ### Windows (PowerShell)
 
 powershell
 
-    git clone https://github.com; cd ai-cli-agents-installer; .\install-ai-agents.ps1
+    git clone https://github.com/Lord93jdiso/ai-cli-agents-installer; cd ai-cli-agents-installer; .\install-ai-agents.ps1
     
-
-Use code with caution.
 
 * * *
 

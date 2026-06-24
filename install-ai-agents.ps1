@@ -52,6 +52,19 @@ function Check-Node {
     return $false
 }
 
+function Get-LatestNodeMsiUrl {
+    try {
+        $page = Invoke-WebRequest -UseBasicParsing -Uri "https://nodejs.org/dist/latest/"
+        $msiFile = ($page.Links | Where-Object { $_.href -like '*-x64.msi' } | Select-Object -First 1).href
+        if ($msiFile) {
+            return "https://nodejs.org/dist/latest/$msiFile"
+        }
+    } catch {
+        Write-Warn "Could not determine latest Node.js version, using fallback."
+    }
+    return "https://nodejs.org/dist/latest/node-v22.14.0-x64.msi"
+}
+
 function Install-Node {
     Write-Info "Installing Node.js..."
 
@@ -71,7 +84,7 @@ function Install-Node {
     }
 
     Write-Info "Downloading Node.js installer..."
-    $url = "https://nodejs.org/dist/latest/node-v22.14.0-x64.msi"
+    $url = Get-LatestNodeMsiUrl
     $msi = "$env:TEMP\node-installer.msi"
     try {
         Invoke-WebRequest -Uri $url -OutFile $msi -UseBasicParsing
@@ -182,16 +195,21 @@ function Install-Selected {
 
         $ok = $false
         if ($type -eq 'npm') {
-            npm install -g $data 2>&1 | Out-Null
+            npm install -g $data 2>&1
             if ($LASTEXITCODE -eq 0) {
-                Write-Success "  ✓ $name installed"
-                $ok = $true
+                if (Get-Command $binary -ErrorAction SilentlyContinue) {
+                    Write-Success "  ✓ $name installed"
+                    $ok = $true
+                } else {
+                    Write-Warn "  ⚠ $name installed, but $binary not found in PATH"
+                    $ok = $true
+                }
             } else {
                 Write-Err "  ✗ Error installing $name"
             }
         } elseif ($type -eq 'ps1') {
             try {
-                iex "& { $(irm $data) }" 2>&1 | Out-Null
+                iex "& { $(irm $data) }" 2>&1
                 if ($LASTEXITCODE -eq 0 -or -not $LASTEXITCODE) {
                     Write-Success "  ✓ $name installed"
                     $ok = $true
